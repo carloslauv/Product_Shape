@@ -10,10 +10,10 @@ interface RadarChartProps {
 }
 
 const QUADRANT_COLORS: Record<QuadrantKey, { fill: string; dot: string }> = {
-  execution:   { fill: "rgba(193,99,58,0.12)",  dot: "#C1633A" },
-  insight:     { fill: "rgba(196,154,60,0.12)",  dot: "#C49A3C" },
-  strategy:    { fill: "rgba(42,107,107,0.12)",  dot: "#2A6B6B" },
-  influencing: { fill: "rgba(58,95,138,0.12)",   dot: "#3A5F8A" },
+  execution:   { fill: "rgba(255,107,74,0.10)",  dot: "#FF6B4A" },
+  insight:     { fill: "rgba(255,200,87,0.10)",  dot: "#FFC857" },
+  strategy:    { fill: "rgba(0,201,177,0.10)",   dot: "#00C9B1" },
+  influencing: { fill: "rgba(147,112,219,0.10)", dot: "#9370DB" },
 };
 
 const MAX_SCORE = 5;
@@ -147,7 +147,7 @@ export default function RadarChart({ scores, onScoreChange, size = 480 }: RadarC
         const d = pts.map((p, j) => `${j === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ") + "Z";
         return (
           <path key={level} d={d} fill="none"
-            stroke={level === LEVELS ? "#C8BFB2" : "#DDD7CE"}
+            stroke={level === LEVELS ? "#333" : "#252525"}
             strokeWidth={level === LEVELS ? 1.5 : 0.75}
             strokeDasharray={level === LEVELS ? undefined : "3,3"}
           />
@@ -157,21 +157,21 @@ export default function RadarChart({ scores, onScoreChange, size = 480 }: RadarC
       {/* Axis lines */}
       {RADAR_COMPETENCIES.map((_, i) => {
         const outer = polarToXY(i * angleStep, maxR, cx, cy);
-        return <line key={i} x1={cx} y1={cy} x2={outer.x.toFixed(2)} y2={outer.y.toFixed(2)} stroke="#DDD7CE" strokeWidth={0.75} />;
+        return <line key={i} x1={cx} y1={cy} x2={outer.x.toFixed(2)} y2={outer.y.toFixed(2)} stroke="#252525" strokeWidth={0.75} />;
       })}
 
       {/* Ring labels */}
       {([{ level: 1, label: "NEEDS FOCUS" }, { level: 3, label: "ON TRACK" }, { level: 5, label: "OUTPERFORM" }]).map(({ level, label }) => {
         const r = (level / LEVELS) * maxR;
         return (
-          <text key={label} x={cx} y={cy - r + 9} textAnchor="middle" fontSize={7.5} fill="#A89B8C" fontFamily="sans-serif" letterSpacing="0.6" fontWeight="500">
+          <text key={label} x={cx} y={cy - r + 9} textAnchor="middle" fontSize={7.5} fill="#555555" fontFamily="sans-serif" letterSpacing="0.6" fontWeight="500">
             {label}
           </text>
         );
       })}
 
       {/* Filled shape */}
-      <path d={shapeD} fill="rgba(28,24,20,0.08)" stroke="#1C1814" strokeWidth={1.5} strokeLinejoin="round" />
+      <path d={shapeD} fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.7)" strokeWidth={1.5} strokeLinejoin="round" />
 
       {/* Dots */}
       {RADAR_COMPETENCIES.map((c, i) => {
@@ -215,7 +215,7 @@ export default function RadarChart({ scores, onScoreChange, size = 480 }: RadarC
 
       {/* Interactive hint ring (only when interactive and all at min) */}
       {interactive && Object.values(scores).every(s => s <= 1) && (
-        <text x={cx} y={cy + maxR + 20} textAnchor="middle" fontSize={10} fill="#A89B8C" fontFamily="sans-serif">
+        <text x={cx} y={cy + maxR + 20} textAnchor="middle" fontSize={10} fill="#555555" fontFamily="sans-serif">
           Click or drag on the chart to plot yourself
         </text>
       )}

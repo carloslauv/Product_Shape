@@ -9,10 +9,10 @@ interface AssessmentStepProps {
 }
 
 const QUADRANT_INFO: Record<QuadrantKey, { label: string; color: string; border: string }> = {
-  execution:   { label: "Product Execution",   color: "#C1633A", border: "border-[#C1633A]/30" },
-  insight:     { label: "Customer Insight",     color: "#C49A3C", border: "border-[#C49A3C]/30" },
-  strategy:    { label: "Product Strategy",     color: "#2A6B6B", border: "border-[#2A6B6B]/30" },
-  influencing: { label: "Influencing People",   color: "#3A5F8A", border: "border-[#3A5F8A]/30" },
+  execution:   { label: "Product Execution",   color: "#FF6B4A", border: "" },
+  insight:     { label: "Customer Insight",     color: "#FFC857", border: "" },
+  strategy:    { label: "Product Strategy",     color: "#00C9B1", border: "" },
+  influencing: { label: "Influencing People",   color: "#9370DB", border: "" },
 };
 
 const COMPETENCY_DESCRIPTIONS: Record<string, string> = {

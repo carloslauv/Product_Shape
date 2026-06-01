@@ -2,51 +2,36 @@ export type Competency = {
   id: string;
   label: string;
   quadrant: "execution" | "insight" | "strategy" | "influencing";
-  angle: number; // degrees, for radar chart positioning
+  angle: number;
 };
 
 export type QuadrantKey = "execution" | "insight" | "strategy" | "influencing";
 
-export const COMPETENCIES: Competency[] = [
-  // Product Execution (top-left quadrant)
-  { id: "quality_assurance", label: "Quality Assurance", quadrant: "execution", angle: 60 },
-  { id: "product_delivery", label: "Product Delivery", quadrant: "execution", angle: 90 },
-  { id: "feature_specification", label: "Feature Specification", quadrant: "execution", angle: 120 },
-  // Influencing People (bottom-left quadrant)
-  { id: "managing_up", label: "Managing Up", quadrant: "influencing", angle: 150 },
-  { id: "team_leadership", label: "Team Leadership", quadrant: "influencing", angle: 210 },
-  { id: "stakeholder_management", label: "Stakeholder Management", quadrant: "influencing", angle: 240 },
-  // Product Strategy (bottom-right quadrant)
-  { id: "strategic_impact", label: "Strategic Impact", quadrant: "strategy", angle: 270 },
-  { id: "product_vision", label: "Product Vision & Roadmapping", quadrant: "strategy", angle: 300 },
-  { id: "business_outcome", label: "Business Outcome Ownership", quadrant: "strategy", angle: 330 },
-  // Customer Insight (top-right quadrant)
-  { id: "ux_design", label: "User Experience Design", quadrant: "insight", angle: 0 },
-  { id: "voice_of_customer", label: "Voice of the Customer", quadrant: "insight", angle: 30 },
-  { id: "fluency_with_data", label: "Fluency with Data", quadrant: "insight", angle: 60 },
-];
-
-// Reordered for clean radar chart: clockwise from top
 export const RADAR_COMPETENCIES: Competency[] = [
-  { id: "fluency_with_data", label: "Fluency with Data", quadrant: "insight", angle: 0 },
-  { id: "voice_of_customer", label: "Voice of the Customer", quadrant: "insight", angle: 30 },
-  { id: "ux_design", label: "User Experience Design", quadrant: "insight", angle: 60 },
-  { id: "business_outcome", label: "Business Outcome Ownership", quadrant: "strategy", angle: 90 },
-  { id: "product_vision", label: "Product Vision & Roadmapping", quadrant: "strategy", angle: 120 },
-  { id: "strategic_impact", label: "Strategic Impact", quadrant: "strategy", angle: 150 },
-  { id: "stakeholder_management", label: "Stakeholder Management", quadrant: "influencing", angle: 180 },
-  { id: "team_leadership", label: "Team Leadership", quadrant: "influencing", angle: 210 },
-  { id: "managing_up", label: "Managing Up", quadrant: "influencing", angle: 240 },
-  { id: "feature_specification", label: "Feature Specification", quadrant: "execution", angle: 270 },
-  { id: "product_delivery", label: "Product Delivery", quadrant: "execution", angle: 300 },
-  { id: "quality_assurance", label: "Quality Assurance", quadrant: "execution", angle: 330 },
+  { id: "fluency_with_data",      label: "Fluency with Data",           quadrant: "insight",     angle: 0   },
+  { id: "voice_of_customer",      label: "Voice of the Customer",       quadrant: "insight",     angle: 30  },
+  { id: "ux_design",              label: "User Experience Design",      quadrant: "insight",     angle: 60  },
+  { id: "business_outcome",       label: "Business Outcome Ownership",  quadrant: "strategy",    angle: 90  },
+  { id: "product_vision",         label: "Product Vision & Roadmapping",quadrant: "strategy",    angle: 120 },
+  { id: "strategic_impact",       label: "Strategic Impact",            quadrant: "strategy",    angle: 150 },
+  { id: "stakeholder_management", label: "Stakeholder Management",      quadrant: "influencing", angle: 180 },
+  { id: "team_leadership",        label: "Team Leadership",             quadrant: "influencing", angle: 210 },
+  { id: "managing_up",            label: "Managing Up",                 quadrant: "influencing", angle: 240 },
+  { id: "feature_specification",  label: "Feature Specification",       quadrant: "execution",   angle: 270 },
+  { id: "product_delivery",       label: "Product Delivery",            quadrant: "execution",   angle: 300 },
+  { id: "quality_assurance",      label: "Quality Assurance",           quadrant: "execution",   angle: 330 },
 ];
 
 export const QUADRANT_LABELS: Record<QuadrantKey, { label: string; color: string; bg: string }> = {
-  execution: { label: "Product Execution", color: "#F97316", bg: "rgba(249,115,22,0.15)" },
-  insight: { label: "Customer Insight", color: "#EAB308", bg: "rgba(234,179,8,0.15)" },
-  strategy: { label: "Product Strategy", color: "#06B6D4", bg: "rgba(6,182,212,0.15)" },
-  influencing: { label: "Influencing People", color: "#3B82F6", bg: "rgba(59,130,246,0.15)" },
+  execution:   { label: "Product Execution",   color: "#FF6B4A", bg: "rgba(255,107,74,0.12)"  },
+  insight:     { label: "Customer Insight",    color: "#FFC857", bg: "rgba(255,200,87,0.12)"  },
+  strategy:    { label: "Product Strategy",    color: "#00C9B1", bg: "rgba(0,201,177,0.12)"   },
+  influencing: { label: "Influencing People",  color: "#9370DB", bg: "rgba(147,112,219,0.12)" },
+};
+
+export type CompanyRec = {
+  name: string;
+  why: string;
 };
 
 export type Archetype = {
@@ -57,13 +42,13 @@ export type Archetype = {
   description: string;
   strengths: QuadrantKey[];
   weaknesses: QuadrantKey[];
-  topCompetencies: string[];
   roles: string[];
-  companies: string;
+  company_recs: CompanyRec[];
   strengths_detail: string;
   growth_areas: string;
   interview_spike_questions: string[];
   interview_landing_questions: string[];
+  interview_weakness_questions: string[];
   career_advice: string;
   pm_crack_advice: string;
 };
@@ -78,9 +63,19 @@ export const ARCHETYPES: Archetype[] = [
       "You excel at turning ideas into working products. Your strength lies in Product Execution — you write tight specs, manage delivery like a pro, and obsess over quality. Often comes from an engineering or technical background.",
     strengths: ["execution"],
     weaknesses: ["strategy"],
-    topCompetencies: ["feature_specification", "product_delivery", "quality_assurance"],
     roles: ["Technical PM", "Platform PM", "Infrastructure PM", "API PM"],
-    companies: "Stripe, Twilio, AWS, Figma",
+    company_recs: [
+      { name: "Stripe",    why: "Deep technical product culture — specs and API quality are table stakes here." },
+      { name: "Twilio",    why: "Developer-facing platform where execution precision directly drives revenue." },
+      { name: "Figma",     why: "Performance and delivery quality are core to the product experience." },
+      { name: "Linear",    why: "A small team that ships extremely high-quality software — builders thrive." },
+      { name: "Vercel",    why: "Infrastructure-adjacent product where technical fluency is essential." },
+      { name: "Cloudflare",why: "Platform complexity demands PMs who can write airtight specs." },
+      { name: "GitHub",    why: "Developer tooling where understanding the build process is non-negotiable." },
+      { name: "PlanetScale",why: "Technical product targeting engineers — your instincts are a huge asset." },
+      { name: "Retool",    why: "Internal tooling space where builders who ship reliably stand out." },
+      { name: "Datadog",   why: "Observability tooling with demanding engineering partners and fast release cycles." },
+    ],
     strengths_detail:
       "You translate complex requirements into precise specs. Developers love working with you because you understand tradeoffs, unblock them fast, and rarely change scope mid-sprint.",
     growth_areas:
@@ -99,8 +94,16 @@ export const ARCHETYPES: Archetype[] = [
       "Describe a product decision you made with incomplete data.",
       "How do you balance short-term delivery pressure with long-term product health?",
     ],
+    interview_weakness_questions: [
+      "How do you ensure the features you ship are tied to measurable business outcomes?",
+      "Tell me about a time you had to make a strategic product bet — how did you evaluate it?",
+      "How do you build a product roadmap that aligns with company strategy, not just engineering priorities?",
+      "How do you use customer research to influence what you decide to build?",
+      "Walk me through how you'd identify a new market opportunity for an existing product.",
+      "How do you communicate to leadership why a long-term investment is worth delaying a near-term feature?",
+    ],
     career_advice:
-      "Lead with your execution superpower — it's rare and valued. In job searches, demonstrate impact with metrics (shipped X, reduced Y). To level up, attach yourself to a strategic initiative and own the outcome end-to-end.",
+      "Lead with your execution superpower — it's rare and valued. In job searches, demonstrate impact with metrics (shipped X, reduced Y by Z%). To level up, attach yourself to a strategic initiative and own the outcome end-to-end.",
     pm_crack_advice:
       "If you have an engineering background, this is your natural path into PM. Nail product sense interviews by learning the product design framework. Practice the 'why' layer on top of your technical instincts.",
   },
@@ -113,9 +116,19 @@ export const ARCHETYPES: Archetype[] = [
       "You have an extraordinary ability to understand customers — their pain, their joy, their unspoken needs. You're strong in UX thinking, qualitative research, and translating human insight into product direction.",
     strengths: ["insight"],
     weaknesses: ["influencing"],
-    topCompetencies: ["ux_design", "voice_of_customer", "fluency_with_data"],
     roles: ["Consumer PM", "Growth PM", "Design PM", "UX PM"],
-    companies: "Airbnb, Spotify, Instagram, Notion",
+    company_recs: [
+      { name: "Airbnb",    why: "Design-obsessed culture where customer empathy is the core product differentiator." },
+      { name: "Spotify",   why: "Consumer product built on deep understanding of listener behavior and taste." },
+      { name: "Notion",    why: "UX-led product where the experience IS the moat — perfect for innovators." },
+      { name: "Duolingo",  why: "Behavioral science meets consumer delight — your customer instincts shine here." },
+      { name: "Figma",     why: "Tool built for creatives by people who deeply understand creative workflows." },
+      { name: "Headspace", why: "Consumer wellness product where emotional design and insight drive retention." },
+      { name: "Canva",     why: "Democratizing design — customer research shapes every major product decision." },
+      { name: "Superhuman",why: "Obsessive focus on user experience and delight — the bar is extremely high." },
+      { name: "Loom",      why: "Async video product where understanding workflow friction is the key insight." },
+      { name: "Miro",      why: "Collaboration tool where understanding team dynamics drives product evolution." },
+    ],
     strengths_detail:
       "You run killer user interviews, synthesize patterns others miss, and design experiences that feel magical. Your products are loved because you actually understand the person using them.",
     growth_areas:
@@ -134,6 +147,14 @@ export const ARCHETYPES: Archetype[] = [
       "Walk me through how you'd define the target user for a new product.",
       "How do you know when a product has nailed the job-to-be-done?",
     ],
+    interview_weakness_questions: [
+      "How do you align a skeptical engineering or sales team around a customer insight you believe in?",
+      "Tell me about a time you had to influence a decision without direct authority.",
+      "How do you manage up when your manager is pushing for a feature you disagree with?",
+      "How do you build trust with a cross-functional team that's new to you?",
+      "Describe how you'd navigate a stakeholder who keeps shifting requirements.",
+      "How do you get leadership buy-in for a research-driven initiative with uncertain ROI?",
+    ],
     career_advice:
       "Your empathy for users is a superpower — especially at consumer companies. Showcase case studies of insights → decisions → outcomes. To level up, pair your qualitative strength with stronger data analysis skills.",
     pm_crack_advice:
@@ -148,9 +169,19 @@ export const ARCHETYPES: Archetype[] = [
       "You are fluent in data. You run A/B tests before anyone asks, you know your funnel metrics by heart, and you make decisions with statistical confidence. Often found in growth, ads, or marketplace teams.",
     strengths: ["insight", "strategy"],
     weaknesses: ["execution"],
-    topCompetencies: ["fluency_with_data", "business_outcome", "strategic_impact"],
     roles: ["Growth PM", "Data PM", "Ads PM", "Marketplace PM"],
-    companies: "Meta, Google, LinkedIn, Uber",
+    company_recs: [
+      { name: "Meta",      why: "Experiment-at-scale culture where data fluency is table stakes for every PM." },
+      { name: "Google",    why: "Metrics-driven product org where scientific rigor is baked into the process." },
+      { name: "LinkedIn",  why: "Feed, search, and growth teams all run dense experimentation programs." },
+      { name: "Uber",      why: "Marketplace dynamics require constant data-driven calibration — ideal for you." },
+      { name: "Airbnb",    why: "Growth and pricing teams run sophisticated experiments across a two-sided market." },
+      { name: "DoorDash",  why: "Dense experimentation across marketplace, logistics, and consumer — data PMs thrive." },
+      { name: "Amplitude", why: "Analytics product company — working here is a masterclass in metrics thinking." },
+      { name: "HubSpot",   why: "Growth and activation loops backed by rigorous funnel analysis." },
+      { name: "Duolingo",  why: "Behavioral science meets A/B testing at scale — a scientist's dream." },
+      { name: "Booking.com",why: "Famous for running thousands of experiments simultaneously — ideal environment." },
+    ],
     strengths_detail:
       "You connect product decisions to metrics and outcomes. You can design an experiment, interpret results, and translate them into roadmap decisions with confidence.",
     growth_areas:
@@ -169,23 +200,41 @@ export const ARCHETYPES: Archetype[] = [
       "Describe a product strategy you developed based on data analysis.",
       "How do you balance optimizing existing metrics vs. identifying new ones?",
     ],
+    interview_weakness_questions: [
+      "How do you handle a situation where you need to ship quickly but your experiment hasn't reached significance?",
+      "Tell me about a time you had to write detailed specs or manage a complex delivery — what was your process?",
+      "How do you ensure quality across edge cases when you're moving fast?",
+      "How do you work effectively with design when the design problem is ambiguous?",
+      "Describe a feature you shipped where the primary driver was customer empathy, not data.",
+      "How do you manage delivery timelines when engineering estimates keep slipping?",
+    ],
     career_advice:
       "Data fluency is increasingly non-negotiable for senior PMs. Use it to build credibility fast. When job hunting, show specific impact with numbers. To grow, develop your storytelling — data tells the what, you need to tell the why.",
     pm_crack_advice:
       "If you're coming from analytics or data science, transitioning to PM is very achievable. Demonstrate product sense, not just analysis. Practice product design questions and show you care about the user — not just the metric.",
   },
   {
-    id: "strategist",
-    name: "The Strategist",
+    id: "innovator_strategist",
+    name: "The Product Innovator",
     emoji: "♟️",
     tagline: "Visionary at the whiteboard",
     description:
       "You see the chessboard clearly. You're at your best when defining product vision, crafting roadmaps that align the org, and owning business outcomes. You understand markets, competition, and where to place bets.",
     strengths: ["strategy"],
     weaknesses: ["execution"],
-    topCompetencies: ["product_vision", "strategic_impact", "business_outcome"],
     roles: ["Senior PM", "Principal PM", "Group PM", "CPO-track"],
-    companies: "McKinsey-to-PM, Bain, strategy-heavy tech orgs",
+    company_recs: [
+      { name: "Figma",       why: "Product vision and platform strategy are at the center of their growth." },
+      { name: "Notion",      why: "Long-term bets on platform and ecosystem require bold strategic thinking." },
+      { name: "Shopify",     why: "Multi-sided commerce platform where roadmap decisions have enormous strategic leverage." },
+      { name: "Salesforce",  why: "Enterprise suite where platform strategy and business outcome ownership are paramount." },
+      { name: "Atlassian",   why: "Product-led growth model requiring long-horizon strategic thinking." },
+      { name: "HubSpot",     why: "Growth through product requires visionary PMs who own business outcomes." },
+      { name: "OpenAI",      why: "Defining an entirely new product category — the highest-stakes strategic challenge." },
+      { name: "Anthropic",   why: "Product strategy at the frontier of AI — rare opportunity for true innovators." },
+      { name: "Rippling",    why: "Platform ambition to own the entire workforce layer requires deep strategic vision." },
+      { name: "Segment",     why: "Data infrastructure with a platform strategy that shapes an entire ecosystem." },
+    ],
     strengths_detail:
       "You can articulate a 3-year product vision, build a compelling narrative, and rally an org around a strategy. You understand competitive dynamics and market positioning at a level most PMs don't.",
     growth_areas:
@@ -204,6 +253,14 @@ export const ARCHETYPES: Archetype[] = [
       "Walk me through how you'd evaluate a new product opportunity.",
       "How do you handle strategic disagreements with leadership?",
     ],
+    interview_weakness_questions: [
+      "How do you ensure your strategic vision gets translated into well-executed features?",
+      "Tell me about a time a product you owned had quality or delivery issues — what did you do?",
+      "How do you write specs that give engineers enough clarity to move fast without you?",
+      "How do you manage scope when your grand vision runs into engineering capacity constraints?",
+      "Describe a situation where you had to get into the details to unblock a team.",
+      "How do you balance thinking about the future while keeping the current product healthy?",
+    ],
     career_advice:
       "Your strategic thinking is a fast-track to senior roles. Lead with vision in interviews, but show you can get things done. The strongest PMs pair strategic thinking with execution credibility — build that story.",
     pm_crack_advice:
@@ -218,9 +275,19 @@ export const ARCHETYPES: Archetype[] = [
       "You are the master of cross-functional work. You align stakeholders, manage up brilliantly, and lead teams without authority. You're the PM everyone wants on their most complex, politically-charged projects.",
     strengths: ["influencing"],
     weaknesses: ["insight"],
-    topCompetencies: ["stakeholder_management", "managing_up", "team_leadership"],
     roles: ["Platform PM", "Enterprise PM", "Partnerships PM", "Internal Tools PM"],
-    companies: "Salesforce, SAP, large enterprise orgs, Google internal",
+    company_recs: [
+      { name: "Salesforce",  why: "Complex enterprise org with many stakeholders — operators thrive in this environment." },
+      { name: "Microsoft",   why: "Massive cross-functional programs where alignment is as important as product vision." },
+      { name: "ServiceNow",  why: "Enterprise workflow product with sophisticated buyer relationships." },
+      { name: "SAP",         why: "Enterprise complexity at scale — your stakeholder management skills are essential." },
+      { name: "Google",      why: "Internal platform and infra teams where influencing without authority is daily work." },
+      { name: "Stripe",      why: "Partnerships and platform teams require exceptional cross-functional operators." },
+      { name: "Workday",     why: "HR enterprise product where change management and stakeholder alignment are core." },
+      { name: "Palantir",    why: "Customer-embedded delivery model that demands elite operator skills." },
+      { name: "Twilio",      why: "Platform org with complex partner and developer ecosystem relationships." },
+      { name: "Zendesk",     why: "Enterprise CX platform where cross-functional alignment drives product success." },
+    ],
     strengths_detail:
       "You navigate org complexity like a pro. You know how to get alignment across engineering, design, sales, and legal. You make hard things happen through people.",
     growth_areas:
@@ -239,6 +306,14 @@ export const ARCHETYPES: Archetype[] = [
       "How do you communicate product decisions to the executive team?",
       "What's your approach to running effective cross-functional meetings?",
     ],
+    interview_weakness_questions: [
+      "How do you ensure your roadmap decisions are grounded in real customer pain, not just stakeholder requests?",
+      "Tell me about a time you used data to challenge an assumption you had about users.",
+      "How do you build a habit of customer research into a fast-moving product cycle?",
+      "Walk me through how you'd discover unmet user needs in a market you're new to.",
+      "How do you distinguish between what customers say they want and what they actually need?",
+      "Describe a product decision you made based primarily on qualitative insight rather than stakeholder input.",
+    ],
     career_advice:
       "Your ability to operate in complex environments is rare. You're often the PM who saves multi-year initiatives. To grow to leadership, deepen your strategic and customer insight muscles — you need all four quadrants at director+.",
     pm_crack_advice:
@@ -253,9 +328,19 @@ export const ARCHETYPES: Archetype[] = [
       "You live for the growth loop. You obsess over activation, retention, monetization, and referral. You're data-driven, experiment-happy, and always thinking about how to move the needle on the metrics that matter most.",
     strengths: ["insight", "strategy"],
     weaknesses: ["influencing"],
-    topCompetencies: ["fluency_with_data", "business_outcome", "voice_of_customer"],
     roles: ["Growth PM", "Monetization PM", "Activation PM", "Retention PM"],
-    companies: "Duolingo, Dropbox, HubSpot, Loom, early-stage startups",
+    company_recs: [
+      { name: "Duolingo",  why: "Growth loops and behavioral science are central to their product strategy." },
+      { name: "Dropbox",   why: "Famous for growth hacking — the referral loop is a case study in the field." },
+      { name: "HubSpot",   why: "Product-led growth playbook is deeply embedded in how they build and sell." },
+      { name: "Loom",      why: "Viral growth mechanics built into the core product experience." },
+      { name: "Figma",     why: "Collaboration drives organic growth — growth PMs own this flywheel." },
+      { name: "Miro",      why: "Bottom-up enterprise growth model requiring sophisticated activation thinking." },
+      { name: "Calendly",  why: "Viral loop baked into the product — every meeting invite is a growth moment." },
+      { name: "Amplitude", why: "Analytics-native company where growth thinking is part of the DNA." },
+      { name: "Intercom",  why: "Customer messaging product where activation and retention are the core metrics." },
+      { name: "Zapier",    why: "PLG motion with deep experimentation on onboarding and activation." },
+    ],
     strengths_detail:
       "You understand the full funnel and can identify the highest-leverage intervention at each stage. You combine quantitative rigor with product intuition to find growth opportunities others miss.",
     growth_areas:
@@ -274,6 +359,14 @@ export const ARCHETYPES: Archetype[] = [
       "How do you prioritize growth vs. core product improvements?",
       "How would you build a growth team from scratch?",
     ],
+    interview_weakness_questions: [
+      "How do you get stakeholder and leadership buy-in for a growth initiative that requires significant eng investment?",
+      "Tell me about a time you had to lead a team through a difficult, low-morale period.",
+      "How do you navigate conflict between the growth team's priorities and the core product team's roadmap?",
+      "How do you manage up when your experiments aren't showing results yet?",
+      "Describe how you build alignment across sales, marketing, and product on a go-to-market motion.",
+      "How do you develop junior team members who are more execution-focused than analytically minded?",
+    ],
     career_advice:
       "Growth PM is one of the most impactful and visible PM roles. Show clear before/after metrics in your portfolio. To land senior growth roles, demonstrate you can think beyond tactics — you need to own a growth strategy end-to-end.",
     pm_crack_advice:
@@ -285,16 +378,26 @@ export const ARCHETYPES: Archetype[] = [
     emoji: "🎯",
     tagline: "Balanced, elevated, systemic",
     description:
-      "You have strong scores across all four quadrants. You're the PM who can wear many hats, adapt to context, and operate effectively across the full spectrum. You're likely ready — or almost ready — for senior/director-level roles.",
+      "You have strong scores across all four quadrants. You're the PM who can wear many hats, adapt to context, and operate effectively across the full spectrum. You're likely ready — or almost ready — for senior or director-level roles.",
     strengths: ["execution", "insight", "strategy", "influencing"],
     weaknesses: [],
-    topCompetencies: ["product_vision", "strategic_impact", "team_leadership"],
     roles: ["Senior PM", "Group PM", "Director of Product", "VP of Product"],
-    companies: "Any — you're the Swiss Army knife PM",
+    company_recs: [
+      { name: "Stripe",    why: "Demands PMs who can execute AND set strategy — balance is rewarded at every level." },
+      { name: "Figma",     why: "Small team with big scope — product leaders own outcomes across all dimensions." },
+      { name: "Linear",    why: "High-craft environment where you need both vision and execution in the same person." },
+      { name: "Notion",    why: "Platform ambition where product leaders shape company direction directly." },
+      { name: "OpenAI",    why: "Frontier territory requiring PMs who can navigate strategy, execution, and influence simultaneously." },
+      { name: "Shopify",   why: "Massive scope — merchant success, platform, and commerce strategy all at once." },
+      { name: "Rippling",  why: "Fast-paced, full-stack product org where balanced leaders rise quickly." },
+      { name: "Anthropic", why: "High-stakes product decisions requiring strategic AND execution credibility." },
+      { name: "Ramp",      why: "Finance product growing fast where well-rounded PMs can own large surface areas." },
+      { name: "Vercel",    why: "Developer platform where insight, strategy, and execution all matter equally." },
+    ],
     strengths_detail:
       "Your balance is rare. You can write a spec AND present a vision. You understand users AND align stakeholders. Teams trust you and leadership respects you.",
     growth_areas:
-      "At this level, your job is to raise the ceiling — find your spike and build a distinct point of view. Great product leaders aren't balanced; they're exceptionally strong somewhere and solid everywhere else.",
+      "At this level, your job is to raise the ceiling — find your spike and build a distinct point of view. Great product leaders aren't just balanced; they're exceptionally strong somewhere and solid everywhere else.",
     interview_spike_questions: [
       "How do you build and develop a team of PMs?",
       "How do you set product strategy when the business direction is unclear?",
@@ -308,6 +411,14 @@ export const ARCHETYPES: Archetype[] = [
       "How do you decide when to kill a product or feature?",
       "How have you grown and mentored other PMs?",
       "Describe your approach to building a product culture.",
+    ],
+    interview_weakness_questions: [
+      "What's the one quadrant you feel least confident in, and what are you doing about it?",
+      "Tell me about a situation where being well-rounded wasn't enough — where you needed to go deep.",
+      "How do you identify and sharpen your distinctive point of view as a PM leader?",
+      "Describe a time you had to make a very hard call with limited data and limited time.",
+      "How do you avoid becoming a generalist who's too broad to be truly impactful?",
+      "What does 'product leadership' mean to you beyond managing individual contributors?",
     ],
     career_advice:
       "You're in a strong position. Focus on identifying your unique differentiation — what's your spike? The best leaders are known for something specific. Also invest in developing other PMs, as that's the unlock for director+ roles.",
@@ -324,22 +435,15 @@ export function scoreToLevel(score: number): string {
 
 export function getQuadrantScores(scores: Record<string, number>): Record<QuadrantKey, number> {
   const quadrants: Record<QuadrantKey, number[]> = {
-    execution: [],
-    insight: [],
-    strategy: [],
-    influencing: [],
+    execution: [], insight: [], strategy: [], influencing: [],
   };
-
   RADAR_COMPETENCIES.forEach((c) => {
-    if (scores[c.id] !== undefined) {
-      quadrants[c.quadrant].push(scores[c.id]);
-    }
+    if (scores[c.id] !== undefined) quadrants[c.quadrant].push(scores[c.id]);
   });
-
   return {
-    execution: avg(quadrants.execution),
-    insight: avg(quadrants.insight),
-    strategy: avg(quadrants.strategy),
+    execution:   avg(quadrants.execution),
+    insight:     avg(quadrants.insight),
+    strategy:    avg(quadrants.strategy),
     influencing: avg(quadrants.influencing),
   };
 }
@@ -351,41 +455,44 @@ function avg(arr: number[]): number {
 
 export function matchArchetype(scores: Record<string, number>): Archetype {
   const quadrantScores = getQuadrantScores(scores);
-
-  // Check if broadly balanced at high level → Product Leader (on 1-5 scale, 3.8+ is high)
   const allHigh = Object.values(quadrantScores).every((s) => s >= 3.8);
   if (allHigh) return ARCHETYPES.find((a) => a.id === "product_leader")!;
 
-  // Find dominant quadrant(s)
   const sorted = Object.entries(quadrantScores).sort((a, b) => b[1] - a[1]) as [QuadrantKey, number][];
   const topQuadrant = sorted[0][0];
   const secondQuadrant = sorted[1][0];
 
-  // Growth PM: data + strategy spike (on 1-5 scale, 4+ is a spike)
-  if (
-    scores["fluency_with_data"] >= 4 &&
-    (scores["business_outcome"] >= 4 || scores["strategic_impact"] >= 4)
-  ) {
+  if (scores["fluency_with_data"] >= 4 && (scores["business_outcome"] >= 4 || scores["strategic_impact"] >= 4)) {
     return ARCHETYPES.find((a) => a.id === "growth_pm")!;
   }
 
-  // Match by top quadrant
-  const archetypeMap: Partial<Record<QuadrantKey, string>> = {
-    execution: "builder",
-    insight: "innovator",
-    strategy: "strategist",
-    influencing: "operator",
-  };
-
-  // If top two quadrants are insight + strategy → scientist leaning
   if (
     (topQuadrant === "insight" && secondQuadrant === "strategy") ||
     (topQuadrant === "strategy" && secondQuadrant === "insight")
   ) {
-    if (scores["fluency_with_data"] >= 4) {
-      return ARCHETYPES.find((a) => a.id === "scientist")!;
-    }
+    if (scores["fluency_with_data"] >= 4) return ARCHETYPES.find((a) => a.id === "scientist")!;
   }
 
+  const archetypeMap: Partial<Record<QuadrantKey, string>> = {
+    execution:   "builder",
+    insight:     "innovator",
+    strategy:    "innovator_strategist",
+    influencing: "operator",
+  };
   return ARCHETYPES.find((a) => a.id === archetypeMap[topQuadrant])!;
+}
+
+// Encode/decode scores for shareable URLs
+export function encodeScores(scores: Record<string, number>): string {
+  const ordered = RADAR_COMPETENCIES.map((c) => scores[c.id] ?? 1);
+  return btoa(ordered.join(","));
+}
+
+export function decodeScores(encoded: string): Record<string, number> {
+  try {
+    const values = atob(encoded).split(",").map(Number);
+    return Object.fromEntries(RADAR_COMPETENCIES.map((c, i) => [c.id, values[i] ?? 1]));
+  } catch {
+    return Object.fromEntries(RADAR_COMPETENCIES.map((c) => [c.id, 1]));
+  }
 }
