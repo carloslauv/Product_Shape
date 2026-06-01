@@ -82,7 +82,7 @@ export default function Home() {
               <p className="text-[10px] font-sans font-semibold tracking-widest text-[var(--fg-subtle)] uppercase">Your Shape</p>
               <span className="text-xs font-sans text-[var(--fg-subtle)]">{completedCount}/{totalCount} rated</span>
             </div>
-            <RadarChart scores={scores} size={520} />
+            <RadarChart scores={scores} onScoreChange={handleScoreChange} size={520} />
             {/* Progress bar */}
             <div className="mt-5">
               <div className="h-1 bg-[var(--border)] rounded-full overflow-hidden">
