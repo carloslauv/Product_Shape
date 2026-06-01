@@ -318,7 +318,7 @@ export const ARCHETYPES: Archetype[] = [
 
 export function scoreToLevel(score: number): string {
   if (score <= 1.5) return "Needs Focus";
-  if (score <= 2.5) return "On Track";
+  if (score <= 3.5) return "On Track";
   return "Outperform";
 }
 
@@ -351,11 +351,9 @@ function avg(arr: number[]): number {
 
 export function matchArchetype(scores: Record<string, number>): Archetype {
   const quadrantScores = getQuadrantScores(scores);
-  const overallAvg =
-    (quadrantScores.execution + quadrantScores.insight + quadrantScores.strategy + quadrantScores.influencing) / 4;
 
-  // Check if broadly balanced at high level → Product Leader
-  const allHigh = Object.values(quadrantScores).every((s) => s >= 2.2);
+  // Check if broadly balanced at high level → Product Leader (on 1-5 scale, 3.8+ is high)
+  const allHigh = Object.values(quadrantScores).every((s) => s >= 3.8);
   if (allHigh) return ARCHETYPES.find((a) => a.id === "product_leader")!;
 
   // Find dominant quadrant(s)
@@ -363,10 +361,10 @@ export function matchArchetype(scores: Record<string, number>): Archetype {
   const topQuadrant = sorted[0][0];
   const secondQuadrant = sorted[1][0];
 
-  // Growth PM: data + strategy spike
+  // Growth PM: data + strategy spike (on 1-5 scale, 4+ is a spike)
   if (
-    scores["fluency_with_data"] >= 2.5 &&
-    (scores["business_outcome"] >= 2.5 || scores["strategic_impact"] >= 2.5)
+    scores["fluency_with_data"] >= 4 &&
+    (scores["business_outcome"] >= 4 || scores["strategic_impact"] >= 4)
   ) {
     return ARCHETYPES.find((a) => a.id === "growth_pm")!;
   }
@@ -384,7 +382,7 @@ export function matchArchetype(scores: Record<string, number>): Archetype {
     (topQuadrant === "insight" && secondQuadrant === "strategy") ||
     (topQuadrant === "strategy" && secondQuadrant === "insight")
   ) {
-    if (scores["fluency_with_data"] >= 2.5) {
+    if (scores["fluency_with_data"] >= 4) {
       return ARCHETYPES.find((a) => a.id === "scientist")!;
     }
   }

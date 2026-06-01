@@ -1,249 +1,167 @@
 "use client";
 
 import React from "react";
-import { RADAR_COMPETENCIES, QUADRANT_LABELS, QuadrantKey } from "@/lib/archetypes";
+import { RADAR_COMPETENCIES, QuadrantKey } from "@/lib/archetypes";
 
 interface RadarChartProps {
   scores: Record<string, number>;
-  onScoreChange?: (id: string, value: number) => void;
   size?: number;
-  interactive?: boolean;
 }
 
-const LEVELS = 3;
-const CENTER_OFFSET = 0.15; // inner dead zone
+const QUADRANT_COLORS: Record<QuadrantKey, { fill: string; dot: string }> = {
+  execution: { fill: "rgba(193,99,58,0.12)", dot: "#C1633A" },
+  insight:   { fill: "rgba(196,154,60,0.12)", dot: "#C49A3C" },
+  strategy:  { fill: "rgba(42,107,107,0.12)", dot: "#2A6B6B" },
+  influencing:{ fill: "rgba(58,95,138,0.12)", dot: "#3A5F8A" },
+};
 
-function polarToXY(angle: number, radius: number, cx: number, cy: number) {
-  const rad = ((angle - 90) * Math.PI) / 180;
-  return {
-    x: cx + radius * Math.cos(rad),
-    y: cy + radius * Math.sin(rad),
-  };
+const MAX_SCORE = 5;
+const MIN_SCORE = 1;
+const N = 12;
+const LEVELS = 5;
+
+function polarToXY(angleDeg: number, r: number, cx: number, cy: number) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
-export default function RadarChart({ scores, onScoreChange, size = 420, interactive = true }: RadarChartProps) {
+export default function RadarChart({ scores, size = 480 }: RadarChartProps) {
   const cx = size / 2;
   const cy = size / 2;
-  const maxRadius = size * 0.38;
-  const n = RADAR_COMPETENCIES.length;
-  const angleStep = 360 / n;
+  const maxR = size * 0.36;
+  const labelR = maxR + 32;
+  const angleStep = 360 / N;
 
-  function getRadius(score: number): number {
-    const normalized = (score - 1) / 2; // 1-3 → 0-1
-    return CENTER_OFFSET * maxRadius + normalized * maxRadius * (1 - CENTER_OFFSET);
+  function scoreToR(score: number) {
+    return ((score - MIN_SCORE) / (MAX_SCORE - MIN_SCORE)) * maxR;
   }
 
-  // Build filled polygon points from scores
-  const polygonPoints = RADAR_COMPETENCIES.map((c, i) => {
-    const score = scores[c.id] || 1;
-    const r = getRadius(score);
-    const angle = i * angleStep;
-    return polarToXY(angle, r, cx, cy);
+  // Ring points for each level
+  function ringPoints(level: number) {
+    const r = (level / LEVELS) * maxR;
+    return Array.from({ length: N }, (_, i) => polarToXY(i * angleStep, r, cx, cy));
+  }
+
+  // User shape
+  const shapePoints = RADAR_COMPETENCIES.map((c, i) => {
+    const score = scores[c.id] ?? MIN_SCORE;
+    return polarToXY(i * angleStep, scoreToR(score), cx, cy);
   });
 
-  // Grid rings
-  const rings = [1, 2, 3];
-
-  // Quadrant background sectors
-  const quadrantColors: Record<QuadrantKey, string> = {
-    insight: "rgba(234,179,8,0.08)",
-    strategy: "rgba(6,182,212,0.08)",
-    influencing: "rgba(59,130,246,0.08)",
-    execution: "rgba(249,115,22,0.08)",
-  };
-
-  function getSectorPath(startIdx: number, endIdx: number, inner: number, outer: number) {
-    const pts = [];
-    for (let i = startIdx; i <= endIdx; i++) {
-      const angle = i * angleStep;
-      pts.push(polarToXY(angle, outer, cx, cy));
-    }
-    for (let i = endIdx; i >= startIdx; i--) {
-      const angle = i * angleStep;
-      pts.push(polarToXY(angle, inner, cx, cy));
-    }
-    return pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + "Z";
-  }
-
-  function handleDotClick(id: string, currentScore: number) {
-    if (!onScoreChange) return;
-    const next = currentScore >= 3 ? 1 : currentScore + 1;
-    onScoreChange(id, next);
-  }
-
-  const labelOffset = 28;
+  const shapeD = shapePoints.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ") + "Z";
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        {/* Quadrant backgrounds */}
-        {[
-          { quadrant: "insight" as QuadrantKey, start: 0, end: 2 },
-          { quadrant: "strategy" as QuadrantKey, start: 3, end: 5 },
-          { quadrant: "influencing" as QuadrantKey, start: 6, end: 8 },
-          { quadrant: "execution" as QuadrantKey, start: 9, end: 11 },
-        ].map(({ quadrant, start, end }) => (
+    <svg
+      width="100%"
+      viewBox={`0 0 ${size} ${size}`}
+      style={{ display: "block", maxWidth: size }}
+    >
+      {/* Quadrant sector backgrounds */}
+      {([
+        { q: "execution" as QuadrantKey,   start: 9, end: 11 },
+        { q: "insight" as QuadrantKey,     start: 0, end: 2  },
+        { q: "strategy" as QuadrantKey,    start: 3, end: 5  },
+        { q: "influencing" as QuadrantKey, start: 6, end: 8  },
+      ]).map(({ q, start, end }) => {
+        const outerPts = Array.from({ length: end - start + 1 }, (_, k) =>
+          polarToXY((start + k) * angleStep, maxR, cx, cy)
+        );
+        const d =
+          `M${cx},${cy} ` +
+          outerPts.map((p, i) => `${i === 0 ? "L" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ") +
+          "Z";
+        return <path key={q} d={d} fill={QUADRANT_COLORS[q].fill} />;
+      })}
+
+      {/* Grid rings */}
+      {Array.from({ length: LEVELS }, (_, i) => {
+        const level = i + 1;
+        const pts = ringPoints(level);
+        const d = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(" ") + "Z";
+        const isOuter = level === LEVELS;
+        return (
           <path
-            key={quadrant}
-            d={getSectorPath(start, end, 0, maxRadius)}
-            fill={quadrantColors[quadrant]}
-            stroke="none"
+            key={level}
+            d={d}
+            fill="none"
+            stroke={isOuter ? "#C8BFB2" : "#DDD7CE"}
+            strokeWidth={isOuter ? 1.5 : 0.75}
+            strokeDasharray={isOuter ? "none" : "3,3"}
           />
-        ))}
+        );
+      })}
 
-        {/* Grid rings */}
-        {rings.map((level) => {
-          const r = getRadius(level);
-          const pts = Array.from({ length: n }, (_, i) => {
-            const angle = i * angleStep;
-            return polarToXY(angle, r, cx, cy);
-          });
-          const d = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + "Z";
-          return (
-            <path
-              key={level}
-              d={d}
-              fill="none"
-              stroke={level === 3 ? "#d1d5db" : "#e5e7eb"}
-              strokeWidth={level === 3 ? 1.5 : 1}
-              strokeDasharray={level === 3 ? "none" : "4,3"}
-            />
-          );
-        })}
+      {/* Axis lines */}
+      {RADAR_COMPETENCIES.map((_, i) => {
+        const outer = polarToXY(i * angleStep, maxR, cx, cy);
+        return (
+          <line
+            key={i}
+            x1={cx} y1={cy}
+            x2={outer.x.toFixed(2)} y2={outer.y.toFixed(2)}
+            stroke="#DDD7CE"
+            strokeWidth={0.75}
+          />
+        );
+      })}
 
-        {/* Axis lines */}
-        {RADAR_COMPETENCIES.map((_, i) => {
-          const angle = i * angleStep;
-          const outer = polarToXY(angle, maxRadius, cx, cy);
-          return (
-            <line
-              key={i}
-              x1={cx}
-              y1={cy}
-              x2={outer.x}
-              y2={outer.y}
-              stroke="#e5e7eb"
-              strokeWidth={1}
-            />
-          );
-        })}
-
-        {/* Level labels inside chart */}
-        {[
-          { level: 1, text: "NEEDS FOCUS" },
-          { level: 2, text: "ON TRACK" },
-          { level: 3, text: "OUTPERFORM" },
-        ].map(({ level, text }) => (
-          <text
-            key={text}
-            x={cx}
-            y={cy - getRadius(level) + (level === 1 ? 12 : level === 2 ? 10 : 8)}
-            textAnchor="middle"
-            fontSize={level === 3 ? 8 : 7}
-            fill="#9ca3af"
-            fontWeight="500"
-            letterSpacing="0.5"
-          >
-            {text}
+      {/* Ring level labels (on top axis) */}
+      {[
+        { level: 1, label: "NEEDS FOCUS" },
+        { level: 3, label: "ON TRACK" },
+        { level: 5, label: "OUTPERFORM" },
+      ].map(({ level, label }) => {
+        const r = (level / LEVELS) * maxR;
+        return (
+          <text key={label} x={cx} y={cy - r + 9} textAnchor="middle" fontSize={7.5} fill="#A89B8C" fontFamily="sans-serif" letterSpacing="0.6" fontWeight="500">
+            {label}
           </text>
-        ))}
+        );
+      })}
 
-        {/* Filled shape */}
-        <path
-          d={polygonPoints.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + "Z"}
-          fill="rgba(99,102,241,0.2)"
-          stroke="#6366f1"
-          strokeWidth={2}
-        />
+      {/* Filled user shape */}
+      <path d={shapeD} fill="rgba(28,24,20,0.08)" stroke="#1C1814" strokeWidth={1.5} strokeLinejoin="round" />
 
-        {/* Dots */}
-        {RADAR_COMPETENCIES.map((c, i) => {
-          const score = scores[c.id] || 1;
-          const r = getRadius(score);
-          const angle = i * angleStep;
-          const pos = polarToXY(angle, r, cx, cy);
-          const quadColor = QUADRANT_LABELS[c.quadrant].color;
-          return (
-            <circle
-              key={c.id}
-              cx={pos.x}
-              cy={pos.y}
-              r={interactive ? 7 : 5}
-              fill={quadColor}
-              stroke="white"
-              strokeWidth={2}
-              className={interactive ? "cursor-pointer" : ""}
-              onClick={() => handleDotClick(c.id, score)}
-            />
-          );
-        })}
+      {/* Dots */}
+      {RADAR_COMPETENCIES.map((c, i) => {
+        const score = scores[c.id] ?? MIN_SCORE;
+        const pos = polarToXY(i * angleStep, scoreToR(score), cx, cy);
+        const color = QUADRANT_COLORS[c.quadrant].dot;
+        return (
+          <circle key={c.id} cx={pos.x.toFixed(2)} cy={pos.y.toFixed(2)} r={5} fill={color} stroke="white" strokeWidth={1.5} />
+        );
+      })}
 
-        {/* Labels */}
-        {RADAR_COMPETENCIES.map((c, i) => {
-          const angle = i * angleStep;
-          const pos = polarToXY(angle, maxRadius + labelOffset, cx, cy);
-          const rad = ((angle - 90) * Math.PI) / 180;
-          const isLeft = Math.cos(rad) < -0.1;
-          const isRight = Math.cos(rad) > 0.1;
-          const anchor = isLeft ? "end" : isRight ? "start" : "middle";
-          const words = c.label.split(" ");
-          const lines: string[] = [];
-          let current = "";
-          words.forEach((w) => {
-            if ((current + " " + w).length > 16) {
-              if (current) lines.push(current);
-              current = w;
-            } else {
-              current = current ? current + " " + w : w;
-            }
-          });
-          if (current) lines.push(current);
+      {/* Labels */}
+      {RADAR_COMPETENCIES.map((c, i) => {
+        const angle = i * angleStep;
+        const pos = polarToXY(angle, labelR, cx, cy);
+        const rad = ((angle - 90) * Math.PI) / 180;
+        const cosA = Math.cos(rad);
+        const anchor = cosA < -0.15 ? "end" : cosA > 0.15 ? "start" : "middle";
 
-          return (
-            <text
-              key={c.id}
-              x={pos.x}
-              y={pos.y - ((lines.length - 1) * 8) / 2}
-              textAnchor={anchor}
-              fontSize={9.5}
-              fontWeight="600"
-              fill="#374151"
-            >
-              {lines.map((line, li) => (
-                <tspan key={li} x={pos.x} dy={li === 0 ? 0 : 11}>
-                  {line}
-                </tspan>
-              ))}
-            </text>
-          );
-        })}
+        const words = c.label.split(" ");
+        const lines: string[] = [];
+        let cur = "";
+        for (const w of words) {
+          const test = cur ? `${cur} ${w}` : w;
+          if (test.length > 14 && cur) { lines.push(cur); cur = w; }
+          else cur = test;
+        }
+        if (cur) lines.push(cur);
 
-        {/* Quadrant labels */}
-        {[
-          { quadrant: "insight" as QuadrantKey, angle: 30, radiusFactor: 0.55 },
-          { quadrant: "strategy" as QuadrantKey, angle: 120, radiusFactor: 0.55 },
-          { quadrant: "influencing" as QuadrantKey, angle: 210, radiusFactor: 0.55 },
-          { quadrant: "execution" as QuadrantKey, angle: 300, radiusFactor: 0.55 },
-        ].map(({ quadrant, angle, radiusFactor }) => {
-          const pos = polarToXY(angle, maxRadius * radiusFactor, cx, cy);
-          const info = QUADRANT_LABELS[quadrant];
-          return (
-            <text
-              key={quadrant}
-              x={pos.x}
-              y={pos.y}
-              textAnchor="middle"
-              fontSize={8}
-              fontWeight="700"
-              fill={info.color}
-              opacity={0.7}
-              letterSpacing="0.8"
-            >
-              {info.label.toUpperCase()}
-            </text>
-          );
-        })}
-      </svg>
-    </div>
+        const color = QUADRANT_COLORS[c.quadrant].dot;
+
+        return (
+          <text key={c.id} textAnchor={anchor} fontSize={10} fontFamily="sans-serif" fontWeight="500" fill={color}>
+            {lines.map((line, li) => (
+              <tspan key={li} x={pos.x.toFixed(2)} y={(pos.y + li * 13 - ((lines.length - 1) * 6)).toFixed(2)}>
+                {line}
+              </tspan>
+            ))}
+          </text>
+        );
+      })}
+    </svg>
   );
 }

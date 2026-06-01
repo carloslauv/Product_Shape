@@ -18,23 +18,37 @@ interface ResultsViewProps {
   context: "landing" | "current_pm" | "crack_pm";
 }
 
-const LEVEL_BAR_COLORS = ["", "bg-red-400", "bg-yellow-400", "bg-green-500"];
+const Q_COLORS: Record<QuadrantKey, string> = {
+  execution: "#C1633A",
+  insight: "#C49A3C",
+  strategy: "#2A6B6B",
+  influencing: "#3A5F8A",
+};
 
-function QuadrantBar({ label, score, color }: { label: string; score: number; color: string }) {
-  const pct = ((score - 1) / 2) * 100;
+function ScoreBar({ label, score, color }: { label: string; score: number; color: string }) {
+  const pct = ((score - 1) / 4) * 100;
   return (
     <div>
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs font-semibold text-gray-600">{label}</span>
-        <span className="text-xs text-gray-400">{scoreToLevel(score)}</span>
+      <div className="flex justify-between items-center mb-1.5">
+        <span className="text-sm font-semibold text-[var(--fg)]">{label}</span>
+        <span className="text-xs font-sans text-[var(--fg-subtle)]">{scoreToLevel(score)}</span>
       </div>
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, backgroundColor: color }}
-        />
+      <div className="h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
     </div>
+  );
+}
+
+function Divider() {
+  return <div className="h-px bg-[var(--border)] my-8" />;
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-sans font-semibold tracking-widest text-[var(--fg-subtle)] uppercase mb-4">
+      {children}
+    </p>
   );
 }
 
@@ -43,15 +57,14 @@ export default function ResultsView({ scores, archetype, onReset, context }: Res
   const [emailSent, setEmailSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [expandedSection, setExpandedSection] = useState<string | null>("archetype");
 
   const quadrantScores = getQuadrantScores(scores);
 
-  const sortedCompetencies = [...RADAR_COMPETENCIES].sort(
-    (a, b) => (scores[b.id] || 1) - (scores[a.id] || 1)
-  );
-  const topThree = sortedCompetencies.slice(0, 3);
-  const bottomThree = sortedCompetencies.slice(-3).reverse();
+  const sorted = [...RADAR_COMPETENCIES].sort((a, b) => (scores[b.id] ?? 1) - (scores[a.id] ?? 1));
+  const topThree = sorted.slice(0, 3);
+  const bottomThree = sorted.slice(-3).reverse();
+
+  const advice = context === "crack_pm" ? archetype.pm_crack_advice : archetype.career_advice;
 
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -64,170 +77,151 @@ export default function ResultsView({ scores, archetype, onReset, context }: Res
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, scores, archetypeId: archetype.id, context }),
       });
-      if (res.ok) {
-        setEmailSent(true);
-      } else {
-        setEmailError("Something went wrong. Try again.");
-      }
+      if (res.ok) setEmailSent(true);
+      else setEmailError("Something went wrong. Try again.");
     } catch {
       setEmailError("Network error. Try again.");
     }
     setSending(false);
   }
 
-  const sectionClass = "rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden mb-4";
-  const sectionHeaderClass =
-    "w-full px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors";
-
-  function Section({
-    id,
-    title,
-    children,
-  }: {
-    id: string;
-    title: string;
-    children: React.ReactNode;
-  }) {
-    const open = expandedSection === id;
-    return (
-      <div className={sectionClass}>
-        <button className={sectionHeaderClass} onClick={() => setExpandedSection(open ? null : id)}>
-          <span className="font-bold text-gray-800">{title}</span>
-          <span className="text-gray-400 text-lg">{open ? "−" : "+"}</span>
-        </button>
-        {open && <div className="px-6 pb-6">{children}</div>}
-      </div>
-    );
-  }
-
-  const advice =
-    context === "landing"
-      ? archetype.career_advice
-      : context === "crack_pm"
-      ? archetype.pm_crack_advice
-      : archetype.career_advice;
-
   return (
-    <div className="space-y-6">
-      {/* Hero archetype card */}
-      <div className="rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white p-6 shadow-lg">
+    <div className="max-w-2xl mx-auto">
+
+      {/* Archetype hero */}
+      <div className="mb-8">
+        <p className="text-[10px] font-sans font-semibold tracking-widest text-[var(--fg-subtle)] uppercase mb-3">Your PM Archetype</p>
         <div className="flex items-start gap-4">
-          <div className="text-5xl">{archetype.emoji}</div>
+          <span className="text-5xl">{archetype.emoji}</span>
           <div>
-            <p className="text-indigo-200 text-sm font-medium mb-1">Your PM Archetype</p>
-            <h2 className="text-2xl font-bold">{archetype.name}</h2>
-            <p className="text-indigo-100 text-sm mt-1 italic">"{archetype.tagline}"</p>
+            <h2 className="text-3xl font-bold text-[var(--fg)] leading-tight">{archetype.name}</h2>
+            <p className="text-[var(--fg-muted)] italic mt-1">"{archetype.tagline}"</p>
           </div>
         </div>
-        <p className="mt-4 text-sm text-indigo-100 leading-relaxed">{archetype.description}</p>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <p className="mt-4 text-base text-[var(--fg-muted)] leading-relaxed">{archetype.description}</p>
+        <div className="flex flex-wrap gap-2 mt-4">
           {archetype.roles.map((r) => (
-            <span key={r} className="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium">
+            <span key={r} className="text-xs font-sans font-medium px-3 py-1.5 rounded-full border border-[var(--border)] text-[var(--fg-muted)] bg-[var(--bg-card)]">
               {r}
             </span>
           ))}
         </div>
       </div>
 
-      {/* Radar chart */}
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-4 flex flex-col items-center">
-        <h3 className="font-bold text-gray-800 mb-2 text-sm">Your Shape</h3>
-        <RadarChart scores={scores} interactive={false} size={360} />
+      <Divider />
+
+      {/* Full-width radar chart */}
+      <div className="mb-8">
+        <SectionTitle>Your Shape</SectionTitle>
+        <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] p-6">
+          <RadarChart scores={scores} size={520} />
+        </div>
       </div>
+
+      <Divider />
 
       {/* Quadrant scores */}
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-6">
-        <h3 className="font-bold text-gray-800 mb-4 text-sm">Quadrant Breakdown</h3>
-        <div className="space-y-4">
+      <div className="mb-8">
+        <SectionTitle>Quadrant Breakdown</SectionTitle>
+        <div className="space-y-5">
           {(Object.keys(quadrantScores) as QuadrantKey[]).map((q) => (
-            <QuadrantBar
-              key={q}
-              label={QUADRANT_LABELS[q].label}
-              score={quadrantScores[q]}
-              color={QUADRANT_LABELS[q].color}
-            />
+            <ScoreBar key={q} label={QUADRANT_LABELS[q].label} score={quadrantScores[q]} color={Q_COLORS[q]} />
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-4 mt-6">
-          <div>
-            <p className="text-xs font-bold text-green-600 mb-2">🚀 Your Spikes</p>
+
+        <div className="grid grid-cols-2 gap-4 mt-8">
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <p className="text-[10px] font-sans font-semibold tracking-widest text-[#2A6B6B] uppercase mb-3">Your Spikes</p>
             {topThree.map((c) => (
-              <div key={c.id} className="flex items-center gap-2 mb-1.5">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: QUADRANT_LABELS[c.quadrant].color }} />
-                <span className="text-xs text-gray-700">{c.label}</span>
+              <div key={c.id} className="flex items-center gap-2 mb-2">
+                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: Q_COLORS[c.quadrant] }} />
+                <span className="text-sm text-[var(--fg)]">{c.label}</span>
               </div>
             ))}
           </div>
-          <div>
-            <p className="text-xs font-bold text-red-500 mb-2">🎯 Focus Areas</p>
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-4">
+            <p className="text-[10px] font-sans font-semibold tracking-widest text-[#C1633A] uppercase mb-3">Focus Areas</p>
             {bottomThree.map((c) => (
-              <div key={c.id} className="flex items-center gap-2 mb-1.5">
-                <div className="w-2 h-2 rounded-full bg-gray-300" />
-                <span className="text-xs text-gray-700">{c.label}</span>
+              <div key={c.id} className="flex items-center gap-2 mb-2">
+                <div className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-[var(--border)]" />
+                <span className="text-sm text-[var(--fg)]">{c.label}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Expandable sections */}
-      <Section id="archetype" title="💡 What This Means For You">
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">{archetype.strengths_detail}</p>
-        <div className="bg-amber-50 rounded-xl p-4">
-          <p className="text-xs font-bold text-amber-700 mb-1">Growth Areas</p>
-          <p className="text-sm text-amber-800 leading-relaxed">{archetype.growth_areas}</p>
-        </div>
-      </Section>
+      <Divider />
 
-      <Section id="career" title="🎯 Career Advice">
-        <p className="text-sm text-gray-600 leading-relaxed">{advice}</p>
-        <div className="mt-3 bg-indigo-50 rounded-xl p-4">
-          <p className="text-xs font-bold text-indigo-700 mb-1">Best-fit companies / orgs</p>
-          <p className="text-sm text-indigo-800">{archetype.companies}</p>
+      {/* What this means */}
+      <div className="mb-8">
+        <SectionTitle>What This Means</SectionTitle>
+        <p className="text-base text-[var(--fg-muted)] leading-relaxed mb-5">{archetype.strengths_detail}</p>
+        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">
+          <p className="text-[10px] font-sans font-semibold tracking-widest text-[#C49A3C] uppercase mb-2">Growth Areas</p>
+          <p className="text-sm text-[var(--fg-muted)] leading-relaxed">{archetype.growth_areas}</p>
         </div>
-      </Section>
+      </div>
 
-      <Section id="spike_prep" title="🎤 Interview Questions for Your Spike">
-        <p className="text-xs text-gray-400 mb-3">
-          These play to your strengths — prepare compelling stories for each.
-        </p>
-        <ol className="space-y-3">
+      <Divider />
+
+      {/* Career advice */}
+      <div className="mb-8">
+        <SectionTitle>Career Advice</SectionTitle>
+        <p className="text-base text-[var(--fg-muted)] leading-relaxed mb-4">{advice}</p>
+        <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5">
+          <p className="text-[10px] font-sans font-semibold tracking-widest text-[var(--fg-subtle)] uppercase mb-2">Best-fit companies</p>
+          <p className="text-sm text-[var(--fg-muted)]">{archetype.companies}</p>
+        </div>
+      </div>
+
+      <Divider />
+
+      {/* Spike questions */}
+      <div className="mb-8">
+        <SectionTitle>Interview Questions — Your Spike</SectionTitle>
+        <p className="text-sm text-[var(--fg-subtle)] mb-5">Questions that play to your strengths. Prepare a sharp story for each.</p>
+        <ol className="space-y-4">
           {archetype.interview_spike_questions.map((q, i) => (
-            <li key={i} className="flex gap-3">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center">
+            <li key={i} className="flex gap-4">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full border border-[var(--border)] text-xs font-sans font-semibold text-[var(--fg-subtle)] flex items-center justify-center">
                 {i + 1}
               </span>
-              <p className="text-sm text-gray-700 leading-relaxed">{q}</p>
+              <p className="text-sm text-[var(--fg)] leading-relaxed pt-0.5">{q}</p>
             </li>
           ))}
         </ol>
-      </Section>
+      </div>
 
-      <Section id="land_job" title="🏆 Questions to Land the Job">
-        <p className="text-xs text-gray-400 mb-3">
-          These are the must-prepare questions for any PM role — nail these and you're in.
-        </p>
-        <ol className="space-y-3">
+      <Divider />
+
+      {/* Landing questions */}
+      <div className="mb-8">
+        <SectionTitle>Interview Questions — Land the Job</SectionTitle>
+        <p className="text-sm text-[var(--fg-subtle)] mb-5">Must-prepare for any PM role. Nail these and you are in.</p>
+        <ol className="space-y-4">
           {archetype.interview_landing_questions.map((q, i) => (
-            <li key={i} className="flex gap-3">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-100 text-green-700 text-xs font-bold flex items-center justify-center">
+            <li key={i} className="flex gap-4">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full border border-[var(--border)] text-xs font-sans font-semibold text-[var(--fg-subtle)] flex items-center justify-center">
                 {i + 1}
               </span>
-              <p className="text-sm text-gray-700 leading-relaxed">{q}</p>
+              <p className="text-sm text-[var(--fg)] leading-relaxed pt-0.5">{q}</p>
             </li>
           ))}
         </ol>
-      </Section>
+      </div>
+
+      <Divider />
 
       {/* Email capture */}
-      <div className="rounded-2xl border-2 border-indigo-100 bg-indigo-50 p-6">
-        <h3 className="font-bold text-indigo-900 mb-1">📬 Get Your Full Report</h3>
-        <p className="text-sm text-indigo-700 mb-4">
-          We'll send you a PDF with your shape, archetype breakdown, and personalized interview prep guide.
+      <div className="mb-8">
+        <SectionTitle>Get Your Full Report</SectionTitle>
+        <p className="text-base text-[var(--fg-muted)] mb-5">
+          Receive a PDF with your shape, archetype breakdown, and full interview prep guide — yours to keep and revisit.
         </p>
         {emailSent ? (
-          <div className="bg-green-100 rounded-xl p-4 text-center">
-            <p className="text-green-700 font-semibold text-sm">✅ Check your inbox! Report is on its way.</p>
+          <div className="bg-[var(--bg-card)] rounded-xl border border-[var(--border)] p-5 text-center">
+            <p className="text-sm font-semibold text-[var(--fg)]">✓ Check your inbox — report is on its way.</p>
           </div>
         ) : (
           <form onSubmit={handleEmailSubmit} className="flex gap-2">
@@ -237,27 +231,24 @@ export default function ResultsView({ scores, archetype, onReset, context }: Res
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
               required
-              className="flex-1 px-4 py-2.5 rounded-xl border-2 border-indigo-200 bg-white text-sm focus:outline-none focus:border-indigo-400"
+              className="flex-1 px-4 py-3 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] text-sm text-[var(--fg)] placeholder-[var(--fg-subtle)] focus:outline-none focus:border-[var(--fg-muted)] font-sans"
             />
             <button
               type="submit"
               disabled={sending}
-              className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 disabled:opacity-60 transition-colors"
+              className="px-6 py-3 bg-[var(--fg)] text-[var(--bg)] rounded-xl text-sm font-semibold font-sans hover:opacity-80 disabled:opacity-40 transition-opacity"
             >
               {sending ? "Sending…" : "Send"}
             </button>
           </form>
         )}
-        {emailError && <p className="text-red-500 text-xs mt-2">{emailError}</p>}
+        {emailError && <p className="text-[#C1633A] text-xs mt-2 font-sans">{emailError}</p>}
       </div>
 
       {/* Reset */}
-      <div className="text-center pb-8">
-        <button
-          onClick={onReset}
-          className="text-sm text-gray-400 hover:text-gray-600 underline transition-colors"
-        >
-          Start over
+      <div className="text-center pb-16">
+        <button onClick={onReset} className="text-sm text-[var(--fg-subtle)] hover:text-[var(--fg-muted)] font-sans transition-colors">
+          ← Start over
         </button>
       </div>
     </div>
