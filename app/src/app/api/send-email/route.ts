@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
     <!-- Footer -->
     <div style="border-top:1px solid #f3f4f6;padding-top:24px;text-align:center">
-      <p style="color:#9ca3af;font-size:12px;margin:0">Framework by <a href="https://www.ravi-mehta.com/product-manager-roles/" style="color:#6366f1">Ravi Mehta</a> · Built with ❤️ for PMs everywhere</p>
+      <p style="color:#9ca3af;font-size:12px;margin:0">Built by <strong style="color:#9ca3af">Carlos Lau</strong> · Framework by <a href="https://www.ravi-mehta.com/product-manager-roles/" style="color:#9370DB">Ravi Mehta</a></p>
     </div>
 
   </div>

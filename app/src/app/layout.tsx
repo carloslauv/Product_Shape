@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Product Shape — What's Your PM Archetype?",
   description:
-    "Assess yourself on the 12 PM competencies, discover your archetype, and get a personalized roadmap to land your next role. Framework by Ravi Mehta.",
+    "Assess yourself on the 12 PM competencies, discover your archetype, and get a personalized roadmap to land your next role. Built by Carlos Lau. Framework by Ravi Mehta.",
   openGraph: {
     title: "What's Your Product Shape?",
     description: "Discover your PM archetype in 3 minutes.",

@@ -54,7 +54,7 @@ export default function Home() {
             <button onClick={() => setStep("assess")} className="text-sm text-[var(--fg-subtle)] hover:text-[var(--fg-muted)] font-sans transition-colors">
               ← Back
             </button>
-            <span className="text-xs text-[var(--fg-subtle)] font-sans">Framework by Ravi Mehta</span>
+            <span className="text-xs text-[var(--fg-subtle)] font-sans">Built by Carlos Lau · Framework by Ravi Mehta</span>
           </div>
           <ResultsView scores={scores} archetype={archetype} onReset={reset} context={context} />
         </div>
@@ -73,7 +73,7 @@ export default function Home() {
             <button onClick={() => setStep("intro")} className="text-sm text-[var(--fg-subtle)] hover:text-[var(--fg-muted)] font-sans transition-colors">
               ← Back
             </button>
-            <span className="text-xs text-[var(--fg-subtle)] font-sans">Framework by Ravi Mehta</span>
+            <span className="text-xs text-[var(--fg-subtle)] font-sans">Built by Carlos Lau · Framework by Ravi Mehta</span>
           </div>
 
           {/* Live radar — full width */}
@@ -146,10 +146,10 @@ export default function Home() {
         </p>
 
         <p className="text-xs text-[var(--fg-subtle)] font-sans mb-10">
-          Framework & archetypes by{" "}
-          <a href="https://www.ravi-mehta.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--fg-muted)]">
+          Built by Carlos Lau · Framework & archetypes by{" "}
+          <a href="https://www.ravi-mehta.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--fg-muted)] transition-colors">
             Ravi Mehta
-          </a>. Unofficial interactive companion.
+          </a>
         </p>
 
         {/* Big preview radar */}
